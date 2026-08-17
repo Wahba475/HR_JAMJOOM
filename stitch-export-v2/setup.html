@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CV Screener - Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://rsms.me/" rel="preconnect"/>
+<link href="https://rsms.me/inter/inter.css" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "ink-tertiary": "#62666d",
+                      "on-background": "#e4e1eb",
+                      "secondary-fixed": "#e1e3e3",
+                      "inverse-ink": "#000000",
+                      "on-surface-variant": "#c6c5d5",
+                      "on-primary-fixed": "#000965",
+                      "background": "#121319",
+                      "surface-container-highest": "#34343b",
+                      "primary-hover": "#828fff",
+                      "tertiary-fixed": "#ffddbb",
+                      "surface-container": "#1f1f26",
+                      "inverse-canvas": "#ffffff",
+                      "on-error": "#690005",
+                      "surface-container-high": "#292930",
+                      "primary-container": "#5e6ad2",
+                      "error-container": "#93000a",
+                      "ink-subtle": "#8a8f98",
+                      "on-secondary-fixed-variant": "#454747",
+                      "on-secondary-container": "#b7b9b9",
+                      "on-secondary": "#2e3131",
+                      "outline": "#908f9e",
+                      "hairline": "#23252a",
+                      "on-secondary-fixed": "#191c1c",
+                      "surface-container-lowest": "#0d0e14",
+                      "on-primary-fixed-variant": "#2e3aa2",
+                      "on-primary": "#121f8b",
+                      "error": "#ffb4ab",
+                      "primary": "#bdc2ff",
+                      "surface-2": "#141516",
+                      "primary-fixed": "#dfe0ff",
+                      "outline-variant": "#454652",
+                      "surface-1": "#0f1011",
+                      "tertiary-container": "#a56500",
+                      "surface": "#121319",
+                      "on-error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb867",
+                      "on-tertiary-fixed-variant": "#673d00",
+                      "surface-bright": "#393840",
+                      "on-primary-container": "#fdfaff",
+                      "primary-fixed-dim": "#bdc2ff",
+                      "surface-tint": "#bdc2ff",
+                      "inverse-primary": "#4854bb",
+                      "surface-variant": "#34343b",
+                      "secondary-fixed-dim": "#c5c7c7",
+                      "on-tertiary": "#482900",
+                      "on-surface": "#e4e1eb",
+                      "surface-dim": "#121319",
+                      "inverse-surface": "#e4e1eb",
+                      "canvas": "#010102",
+                      "hairline-tertiary": "#3e3e44",
+                      "primary-focus": "#5e69d1",
+                      "secondary": "#c5c7c7",
+                      "inverse-on-surface": "#303037",
+                      "tertiary": "#ffb867",
+                      "hairline-strong": "#34343a",
+                      "on-tertiary-container": "#fffaf8",
+                      "surface-4": "#191a1b",
+                      "ink-muted": "#d0d6e0",
+                      "secondary-container": "#47494a",
+                      "surface-container-low": "#1b1b22",
+                      "on-tertiary-fixed": "#2b1700",
+                      "surface-3": "#18191a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xs": "8px",
+                      "xl": "32px",
+                      "sm": "12px",
+                      "section": "96px",
+                      "md": "16px",
+                      "xxs": "4px",
+                      "lg": "24px",
+                      "xxl": "48px"
+              },
+              "fontFamily": {
+                      "card-title": ["Linear Display", "Inter", "sans-serif"],
+                      "body-lg": ["Linear Text", "Inter", "sans-serif"],
+                      "subhead": ["Linear Display", "Inter", "sans-serif"],
+                      "caption": ["Linear Text", "Inter", "sans-serif"],
+                      "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+                      "button": ["Linear Text", "Inter", "sans-serif"],
+                      "body": ["Linear Text", "Inter", "sans-serif"],
+                      "display-xl": ["Linear Display", "Inter", "sans-serif"],
+                      "display-lg": ["Linear Display", "Inter", "sans-serif"],
+                      "body-sm": ["Linear Text", "Inter", "sans-serif"],
+                      "display-md": ["Linear Display", "Inter", "sans-serif"],
+                      "eyebrow": ["Linear Text", "Inter", "sans-serif"],
+                      "headline": ["Linear Display", "Inter", "sans-serif"]
+              },
+              "fontSize": {
+                      "card-title": ["22px", {"lineHeight": "1.25", "letterSpacing": "-0.4px", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "1.5", "letterSpacing": "-0.1px", "fontWeight": "400"}],
+                      "subhead": ["20px", {"lineHeight": "1.4", "letterSpacing": "-0.2px", "fontWeight": "400"}],
+                      "caption": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                      "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "button": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "body": ["16px", {"lineHeight": "1.5", "letterSpacing": "-0.05px", "fontWeight": "400"}],
+                      "display-xl": ["80px", {"lineHeight": "1.05", "letterSpacing": "-3.0px", "fontWeight": "600"}],
+                      "display-lg": ["56px", {"lineHeight": "1.1", "letterSpacing": "-1.8px", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display-md": ["40px", {"lineHeight": "1.15", "letterSpacing": "-1.0px", "fontWeight": "600"}],
+                      "eyebrow": ["13px", {"lineHeight": "1.3", "letterSpacing": "0.4px", "fontWeight": "500"}],
+                      "headline": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.6px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: #010102; color: #e4e1eb; }
+        .dashed-border { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%2323252aFF' stroke-width='2' stroke-dasharray='8%2c8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); }
+    </style>
+</head>
+<body class="bg-canvas text-on-surface font-body antialiased flex flex-col min-h-screen selection:bg-primary-container selection:text-white">
+<!-- TopNavBar (Linear Transactional - Suppressed main nav, keeping brand anchor) -->
+<header class="flex justify-between items-center px-lg w-full sticky top-0 z-50 h-16 bg-canvas border-b border-hairline flat no-shadows">
+<div class="flex items-center gap-xs">
+<span class="font-headline text-headline text-on-surface font-bold tracking-tight">CV Screener</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-ink-subtle hover:text-on-surface transition-colors font-button text-button">Help Center</button>
+<div class="h-8 w-8 rounded-full bg-surface-1 overflow-hidden border border-hairline">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A small, professional headshot of an HR user, softly lit against a dark background, minimal details, corporate tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDgWGxmpBkADcCVO2CMXiQSnoJgfHMzl4mH1D8QeqirctgMl-jb6XaAisO1PMQEqotdJfQNJ86LQEL45qiWsY6LKUetgJb6e6hdjDW6Aj761kozJWuZXCt-TVZix_zP85hFeUi__TJXV49PoVxk8YF4G-933SZhjC0sK8wqk6ulHt49zruZItIPks_ZO4ACcusU7yGpxouFL_zn9styrDF3prc-BTpPc9Jn1OdVuTg9mm4IimOBcAq"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex justify-center py-section px-md">
+<div class="w-full max-w-[600px] flex flex-col gap-xl">
+<div class="flex flex-col gap-xs text-center md:text-left">
+<h1 class="font-display-md text-display-md text-on-surface tracking-tighter">Screen candidates for a role</h1>
+<p class="font-body-lg text-body-lg text-ink-subtle">Define the criteria and upload resumes to begin the automated screening process.</p>
+</div>
+<form class="flex flex-col gap-lg w-full">
+<!-- Job Title Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-eyebrow text-eyebrow text-ink-subtle uppercase tracking-wider" for="job-title">Job title</label>
+<input class="bg-surface-1 border-hairline rounded-lg text-on-surface placeholder:text-ink-tertiary focus:border-primary-focus focus:ring-1 focus:ring-primary-focus font-body text-body py-sm px-md transition-all shadow-none" id="job-title" placeholder="e.g. Senior Product Designer" type="text"/>
+</div>
+<!-- Job Description Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-eyebrow text-eyebrow text-ink-subtle uppercase tracking-wider" for="job-description">Job description</label>
+<textarea class="bg-surface-1 border-hairline rounded-lg text-on-surface placeholder:text-ink-tertiary focus:border-primary-focus focus:ring-1 focus:ring-primary-focus font-body text-body py-sm px-md transition-all shadow-none resize-y" id="job-description" placeholder="Paste the full job description here..." rows="4"></textarea>
+</div>
+<!-- Hiring Criteria Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-eyebrow text-eyebrow text-ink-subtle uppercase tracking-wider" for="hiring-criteria">Hiring criteria <span class="text-ink-tertiary font-normal">(Optional)</span></label>
+<textarea class="bg-surface-1 border-hairline rounded-lg text-on-surface placeholder:text-ink-tertiary focus:border-primary-focus focus:ring-1 focus:ring-primary-focus font-body text-body py-sm px-md transition-all shadow-none resize-y" id="hiring-criteria" placeholder="Specific skills, years of experience, or required certifications..." rows="3"></textarea>
+</div>
+<!-- Target Shortlist Size -->
+<div class="flex flex-col gap-xs">
+<label class="font-eyebrow text-eyebrow text-ink-subtle uppercase tracking-wider" for="shortlist-size">Target Shortlist Size</label>
+<input class="bg-surface-1 border-hairline rounded-lg text-on-surface placeholder:text-ink-tertiary focus:border-primary-focus focus:ring-1 focus:ring-primary-focus font-body text-body py-sm px-md transition-all shadow-none w-32" id="shortlist-size" min="1" type="number" value="5"/>
+</div>
+<!-- Resume Dropzone -->
+<div class="flex flex-col gap-sm">
+<label class="font-eyebrow text-eyebrow text-ink-subtle uppercase tracking-wider">Upload Resumes</label>
+<div class="dashed-border rounded-xl bg-surface-1 hover:bg-surface-2 transition-colors cursor-pointer flex flex-col items-center justify-center py-xl px-md group">
+<span class="material-symbols-outlined text-outline group-hover:text-primary-focus transition-colors text-4xl mb-sm" style="font-variation-settings: 'FILL' 0, 'wght' 200;">upload_file</span>
+<p class="font-body-lg text-body-lg text-on-surface font-medium">Drag and drop CVs here...</p>
+<p class="font-body-sm text-body-sm text-ink-subtle mt-xxs">PDF only, max 5MB per file</p>
+</div>
+<!-- File Chips -->
+<div class="flex flex-wrap gap-xs mt-xs">
+<div class="flex items-center bg-surface-2 border border-hairline rounded-full py-xxs px-sm gap-xs">
+<span class="material-symbols-outlined text-ink-subtle text-sm">description</span>
+<span class="font-caption text-caption text-on-surface">ahmed_hassan_cv.pdf</span>
+<button class="text-ink-tertiary hover:text-error transition-colors flex items-center ml-xs" type="button">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<div class="flex items-center bg-surface-2 border border-hairline rounded-full py-xxs px-sm gap-xs">
+<span class="material-symbols-outlined text-ink-subtle text-sm">description</span>
+<span class="font-caption text-caption text-on-surface">sarah_alghamdi_resume.pdf</span>
+<button class="text-ink-tertiary hover:text-error transition-colors flex items-center ml-xs" type="button">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="pt-lg border-t border-hairline flex justify-end gap-sm mt-md">
+<button class="font-button text-button bg-surface-1 border border-hairline text-on-surface hover:bg-surface-2 rounded-lg py-sm px-lg transition-colors shadow-none" type="button">
+                        Cancel
+                    </button>
+<button class="font-button text-button bg-primary-container text-white hover:bg-primary-focus rounded-lg py-sm px-lg transition-colors shadow-none flex items-center gap-xs" type="button">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Run Screening
+                    </button>
+</div>
+</form>
+</div>
+</main>
+</body></html>

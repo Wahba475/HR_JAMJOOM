@@ -1,0 +1,289 @@
+@import url("https://rsms.me/inter/inter.css");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter var", "Inter", system-ui, sans-serif;
+
+  /* Colors — Stitch design system "Linear Pro" (dark) */
+  --color-ink-tertiary: #62666d;
+  --color-on-background: #e4e1eb;
+  --color-secondary-fixed: #e1e3e3;
+  --color-inverse-ink: #000000;
+  --color-on-surface-variant: #c6c5d5;
+  --color-on-primary-fixed: #000965;
+  --color-background: #121319;
+  --color-surface-container-highest: #34343b;
+  --color-primary-hover: #828fff;
+  --color-tertiary-fixed: #ffddbb;
+  --color-surface-container: #1f1f26;
+  --color-inverse-canvas: #ffffff;
+  --color-on-error: #690005;
+  --color-surface-container-high: #292930;
+  --color-primary-container: #5e6ad2;
+  --color-error-container: #93000a;
+  --color-ink-subtle: #8a8f98;
+  --color-on-secondary-fixed-variant: #454747;
+  --color-on-secondary-container: #b7b9b9;
+  --color-on-secondary: #2e3131;
+  --color-outline: #908f9e;
+  --color-hairline: #23252a;
+  --color-on-secondary-fixed: #191c1c;
+  --color-surface-container-lowest: #0d0e14;
+  --color-on-primary-fixed-variant: #2e3aa2;
+  --color-on-primary: #121f8b;
+  --color-error: #ffb4ab;
+  --color-primary: #bdc2ff;
+  --color-surface-2: #141516;
+  --color-primary-fixed: #dfe0ff;
+  --color-outline-variant: #454652;
+  --color-surface-1: #0f1011;
+  --color-tertiary-container: #a56500;
+  --color-surface: #121319;
+  --color-on-error-container: #ffdad6;
+  --color-tertiary-fixed-dim: #ffb867;
+  --color-on-tertiary-fixed-variant: #673d00;
+  --color-surface-bright: #393840;
+  --color-on-primary-container: #fdfaff;
+  --color-primary-fixed-dim: #bdc2ff;
+  --color-surface-tint: #bdc2ff;
+  --color-inverse-primary: #4854bb;
+  --color-surface-variant: #34343b;
+  --color-secondary-fixed-dim: #c5c7c7;
+  --color-on-tertiary: #482900;
+  --color-on-surface: #e4e1eb;
+  --color-surface-dim: #121319;
+  --color-inverse-surface: #e4e1eb;
+  --color-canvas: #010102;
+  --color-hairline-tertiary: #3e3e44;
+  --color-primary-focus: #5e69d1;
+  --color-secondary: #c5c7c7;
+  --color-inverse-on-surface: #303037;
+  --color-tertiary: #ffb867;
+  --color-hairline-strong: #34343a;
+  --color-on-tertiary-container: #fffaf8;
+  --color-surface-4: #191a1b;
+  --color-ink-muted: #d0d6e0;
+  --color-secondary-container: #47494a;
+  --color-surface-container-low: #1b1b22;
+  --color-on-tertiary-fixed: #2b1700;
+  --color-surface-3: #18191a;
+
+  /* Spacing scale */
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-section: 96px;
+
+  /* Linear's canonical ink ramp — brighter than the Stitch export's
+     on-surface, which is what gives Linear its crisp near-white text. */
+  --color-ink: #f7f8f8;
+  --color-semantic-success: #27a644;
+
+  /* Radii — Linear's canonical scale: md carries buttons/inputs,
+     lg carries cards. rounded-full left alone so avatars stay circular. */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  /* Type scale: size + line-height + weight (+ letter-spacing where set) */
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+  --text-caption--font-weight: 400;
+
+  --text-eyebrow: 13px;
+  --text-eyebrow--line-height: 1.3;
+  --text-eyebrow--letter-spacing: 0.4px;
+  --text-eyebrow--font-weight: 500;
+
+  --text-mono: 13px;
+  --text-mono--line-height: 1.5;
+  --text-mono--font-weight: 400;
+
+  --text-button: 14px;
+  --text-button--line-height: 1.2;
+  --text-button--font-weight: 500;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+  --text-body-sm--font-weight: 400;
+
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.05px;
+  --text-body--font-weight: 400;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.5;
+  --text-body-lg--letter-spacing: -0.1px;
+  --text-body-lg--font-weight: 400;
+
+  --text-subhead: 20px;
+  --text-subhead--line-height: 1.4;
+  --text-subhead--letter-spacing: -0.2px;
+  --text-subhead--font-weight: 400;
+
+  --text-card-title: 22px;
+  --text-card-title--line-height: 1.25;
+  --text-card-title--letter-spacing: -0.4px;
+  --text-card-title--font-weight: 500;
+
+  --text-headline: 28px;
+  --text-headline--line-height: 1.2;
+  --text-headline--letter-spacing: -0.6px;
+  --text-headline--font-weight: 600;
+
+  --text-display-md: 40px;
+  --text-display-md--line-height: 1.15;
+  --text-display-md--letter-spacing: -1px;
+  --text-display-md--font-weight: 600;
+
+  --text-display-lg: 56px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -1.8px;
+  --text-display-lg--font-weight: 600;
+
+  --text-display-xl: 80px;
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -3px;
+  --text-display-xl--font-weight: 600;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #010102;
+  color: #f7f8f8;
+}
+
+::selection {
+  background-color: #5e6ad2;
+  color: #fff;
+}
+
+/* Lavender focus ring — the accent's main non-CTA job in Linear's system. */
+.focus-ring:focus-visible {
+  outline: none;
+  border-color: #5e6ad2;
+  box-shadow: 0 0 0 3px rgb(94 106 210 / 0.25);
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dropzone dashed outline — inline SVG so the dash pattern matches the design
+   exactly (8,8 dashes, 8px radius) rather than the browser's own dashed border. */
+.dashed-border {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%2323252aFF' stroke-width='2' stroke-dasharray='8%2c8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.progress-ring__circle {
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.pulse-layer {
+  animation: pulse-ring 3s infinite ease-in-out;
+  transform-origin: center;
+}
+
+/* Ambient lavender glow. Linear leans on a faint accent wash over the near-black
+   canvas rather than gradients on the surfaces themselves. Rendered as a soft
+   radial so it fades out well before any hairline it sits behind. */
+.glow-orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  /* Ellipse, not circle, so a wide box spreads the wash across the column
+     instead of clipping a circle's edges into visible corners. */
+  background: radial-gradient(ellipse at center, rgb(94 106 210 / 0.5) 0%, rgb(94 106 210 / 0) 70%);
+  filter: blur(40px);
+  will-change: transform, opacity;
+}
+
+@keyframes glow-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(6%, -5%, 0) scale(1.18);
+    opacity: 0.85;
+  }
+}
+
+@keyframes glow-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(-7%, 6%, 0) scale(0.92);
+    opacity: 0.6;
+  }
+}
+
+.glow-a {
+  animation: glow-drift-a 14s ease-in-out infinite;
+}
+.glow-b {
+  animation: glow-drift-b 18s ease-in-out infinite;
+}
+
+/* Slow sweep across the ring while the pipeline is working. */
+@keyframes glow-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.glow-sweep {
+  animation: glow-sweep 8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-a,
+  .glow-b,
+  .glow-sweep,
+  .pulse-layer {
+    animation: none;
+  }
+}

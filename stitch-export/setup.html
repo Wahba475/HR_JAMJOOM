@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CV Screener - Setup Scan</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#eae8e7",
+                    "secondary": "#566067",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434751",
+                    "background": "#fbf9f8",
+                    "outline": "#737782",
+                    "tertiary-fixed": "#6ffbbe",
+                    "on-surface": "#1b1c1c",
+                    "on-tertiary-fixed": "#002113",
+                    "inverse-primary": "#abc7ff",
+                    "on-background": "#1b1c1c",
+                    "surface-bright": "#fbf9f8",
+                    "surface-container": "#f0eded",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#dae4ed",
+                    "primary-fixed": "#d7e3ff",
+                    "tertiary-container": "#004c32",
+                    "primary-container": "#004085",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#2bc58c",
+                    "surface-tint": "#305ea4",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "on-primary-fixed-variant": "#0c458b",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "on-primary-fixed": "#001b3f",
+                    "on-error": "#ffffff",
+                    "surface": "#fbf9f8",
+                    "surface-container-highest": "#e4e2e1",
+                    "outline-variant": "#c3c6d2",
+                    "on-secondary-fixed-variant": "#3e484f",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#dae4ed",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-container": "#84aefa",
+                    "inverse-on-surface": "#f3f0f0",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-fixed": "#131d23",
+                    "on-secondary-container": "#5c666d",
+                    "primary-fixed-dim": "#abc7ff",
+                    "surface-variant": "#e4e2e1",
+                    "secondary-fixed-dim": "#bec8d0",
+                    "inverse-surface": "#303030",
+                    "primary": "#002a5c",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#003321"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "24px",
+                    "container-padding": "32px",
+                    "base": "8px",
+                    "stack-lg": "48px",
+                    "stack-sm": "12px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for cleaner look in nav */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Custom Input Focus Glow based on Guidelines */
+        .input-glow:focus {
+            box-shadow: 0 0 0 2px rgba(218, 228, 237, 0.5); /* secondary-fixed approx for glow */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- JSON Component: SideNavBar (Hidden on Mobile) -->
+<aside class="w-64 h-full hidden md:flex flex-col bg-surface-container-low border-r border-outline-variant z-10 flex-shrink-0">
+<!-- Header -->
+<div class="h-16 flex items-center px-6 border-b border-outline-variant/50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-on-primary font-bold text-xs">
+                    JP
+                </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">HR Portal</h2>
+<p class="font-body-sm text-body-sm text-secondary text-[10px] uppercase tracking-wider">Internal Tooling</p>
+</div>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 overflow-y-auto py-6 px-base space-y-1">
+<!-- Active Tab: New Scan -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-md text-label-md">New Scan</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="font-label-md text-label-md">Recent Matches</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Archive</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<!-- CTA -->
+<div class="p-4 border-t border-outline-variant/50">
+<button class="w-full py-2.5 px-4 bg-primary text-on-primary font-label-md rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">rocket_launch</span>
+                New Analysis
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 h-full">
+<!-- JSON Component: TopNavBar -->
+<header class="bg-surface h-16 w-full flex items-center border-b border-outline-variant z-20 flex-shrink-0">
+<div class="max-w-7xl mx-auto px-container-padding flex justify-between items-center w-full">
+<!-- Brand / Logo -->
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Trigger (hidden on desktop) -->
+<button class="md:hidden text-on-surface hover:bg-surface-container rounded p-1">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Requested Logo Image -->
+<img alt="Jamjoom Pharma Logo" class="h-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJbj4xjBYp7tgeUAwqPCT9Q3_vR0RxHOiE_L8Rz2mSl1G9kkesJb72VC8DPNCHJ3QgglOVBqT1I4NBhmVW8w-1_KWoICsEg_pojivPUmJXRYDPUubMD_eX_iz_vh2QNlRp1FCeFDv21K6QGtaGPbwCKqd8Sx_SaNIxEV6uDGMlNqKUwHG8ZAQtPSlN3Cy4djey4XONt5H6S9Et8Q5LNjG7vGR731DAjAoKC_OhK2F_SJtRnN5590uOu5wAi8XYqMm5AQ"/>
+<div class="hidden sm:block h-6 w-px bg-outline-variant mx-2"></div>
+<span class="font-headline-md text-headline-md font-bold text-primary hidden sm:block">CV Screener</span>
+</div>
+<!-- Navigation Links (Desktop Only) -->
+<nav class="hidden md:flex items-center gap-8">
+<!-- 'Upload' is semantically closest to 'New Scan' in this top nav context -->
+<a class="text-primary border-b-2 border-primary pb-1 font-bold font-label-md text-label-md h-16 flex items-center mt-[2px]" href="#">Upload</a>
+<a class="text-secondary hover:text-primary transition-colors font-label-md text-label-md" href="#">Dashboard</a>
+<a class="text-secondary hover:text-primary transition-colors font-label-md text-label-md" href="#">History</a>
+<a class="text-secondary hover:text-primary transition-colors font-label-md text-label-md" href="#">Settings</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface hover:bg-surface-container rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-1 rounded-full border border-outline-variant hover:border-primary transition-colors ml-2 overflow-hidden w-8 h-8 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Scrollable Form Canvas -->
+<main class="flex-1 overflow-y-auto bg-surface-bright p-container-padding relative">
+<!-- Form Container (Centered, max-width 600px) -->
+<div class="max-w-[600px] mx-auto bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-[0_4px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+<!-- Form Header -->
+<div class="px-8 py-6 border-b border-outline-variant/40 bg-surface-bright/50">
+<h1 class="font-headline-md text-headline-md text-primary mb-1">New Screening Setup</h1>
+<p class="font-body-md text-body-md text-secondary">Configure parameters for the AI matching engine.</p>
+</div>
+<!-- Form Body -->
+<div class="p-8 space-y-stack-md">
+<!-- Field: Job Title -->
+<div class="space-y-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant" for="job-title">Job title</label>
+<input class="w-full h-11 px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:border-primary input-glow transition-shadow placeholder:text-secondary/50" id="job-title" placeholder="e.g. Senior Medical Representative" type="text"/>
+</div>
+<!-- Field: Job Description -->
+<div class="space-y-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant" for="job-description">Job description</label>
+<textarea class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:border-primary input-glow transition-shadow placeholder:text-secondary/50 resize-y min-h-[100px]" id="job-description" placeholder="Paste the full job description here..." rows="4"></textarea>
+</div>
+<!-- Field: Hiring Criteria -->
+<div class="space-y-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant" for="hiring-criteria">Key Hiring Criteria</label>
+<textarea class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:border-primary input-glow transition-shadow placeholder:text-secondary/50 resize-y min-h-[80px]" id="hiring-criteria" placeholder="List mandatory skills, certifications, or experience..." rows="3"></textarea>
+</div>
+<!-- Field: Shortlist Count -->
+<div class="space-y-2 w-1/2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant" for="shortlist-count">Target Shortlist Size</label>
+<div class="relative">
+<input class="w-full h-11 px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:border-primary input-glow transition-shadow pr-10" id="shortlist-count" max="100" min="1" type="number" value="10"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-sm">group</span>
+</div>
+</div>
+<hr class="border-outline-variant/40 my-6"/>
+<!-- Field: CV Upload Zone (Drag & Drop) -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<label class="block font-label-sm text-label-sm text-on-surface-variant">Candidate CVs</label>
+<span class="text-xs text-secondary">PDF only, max 5MB</span>
+</div>
+<div class="relative border-2 border-dashed border-outline-variant rounded-xl bg-surface hover:bg-surface-container-low transition-colors group cursor-pointer overflow-hidden">
+<input accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple="" type="file"/>
+<div class="p-8 flex flex-col items-center justify-center text-center space-y-3 pointer-events-none">
+<div class="w-12 h-12 bg-primary-fixed/30 text-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-2xl">upload_file</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary mb-1">Click to upload or drag and drop</p>
+<p class="font-body-sm text-body-sm text-secondary">Support for multiple PDF files.</p>
+</div>
+</div>
+</div>
+<!-- File Chips Visualization -->
+<div class="flex flex-wrap gap-2 pt-2">
+<!-- Chip 1 -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container border border-outline-variant/50 rounded-md shadow-sm">
+<span class="material-symbols-outlined text-error text-sm">picture_as_pdf</span>
+<span class="font-body-sm text-body-sm text-on-surface text-sm max-w-[150px] truncate">ahmed_hassan_cv_2023.pdf</span>
+<button class="text-secondary hover:text-error ml-1 focus:outline-none">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Chip 2 -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container border border-outline-variant/50 rounded-md shadow-sm">
+<span class="material-symbols-outlined text-error text-sm">picture_as_pdf</span>
+<span class="font-body-sm text-body-sm text-on-surface text-sm max-w-[150px] truncate">sarah_alghamdi_resume.pdf</span>
+<button class="text-secondary hover:text-error ml-1 focus:outline-none">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Chip 3 -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container border border-outline-variant/50 rounded-md shadow-sm">
+<span class="material-symbols-outlined text-error text-sm">picture_as_pdf</span>
+<span class="font-body-sm text-body-sm text-on-surface text-sm max-w-[150px] truncate">khalid_pharmacist.pdf</span>
+<button class="text-secondary hover:text-error ml-1 focus:outline-none">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Form Footer Actions -->
+<div class="px-8 py-5 bg-surface border-t border-outline-variant/40 flex items-center justify-end gap-4">
+<button class="px-5 py-2.5 font-label-md text-primary border border-transparent hover:bg-surface-container rounded-lg transition-colors">
+                        Cancel
+                    </button>
+<button class="px-6 py-2.5 font-label-md bg-primary text-on-primary rounded-lg shadow-sm hover:bg-on-primary-fixed-variant hover:shadow-md transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        Run Screening
+                    </button>
+</div>
+</div>
+<!-- Bottom padding for scroll clearance -->
+<div class="h-24 md:h-12"></div>
+</main>
+<!-- Mobile Bottom Nav Bar (Fallback for hidden SideNav on small screens) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface border-t border-outline-variant h-16 flex items-center justify-around z-30 pb-safe">
+<a class="flex flex-col items-center justify-center w-16 h-full text-primary" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="text-[10px] font-medium">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center w-16 h-full text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">person_search</span>
+<span class="text-[10px] font-medium">Matches</span>
+</a>
+<a class="flex flex-col items-center justify-center w-16 h-full text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">inventory_2</span>
+<span class="text-[10px] font-medium">Archive</span>
+</a>
+<a class="flex flex-col items-center justify-center w-16 h-full text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</nav>
+</div>
+</body></html>
