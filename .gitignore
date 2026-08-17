@@ -1,0 +1,45 @@
+# --- Secrets: never commit these ---------------------------------------
+.ENV
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Google service-account keys
+*service-account*.json
+*credentials*.json
+gen-lang-client-*.json
+.secrets/
+
+# --- Python -------------------------------------------------------------
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# --- Node / frontend ----------------------------------------------------
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# --- Run artifacts ------------------------------------------------------
+llm_usage.jsonl
+*.log
+cv-uploads/
+stitch-export/
+_e2e.cjs
+_screenshot.cjs
+_shot.cjs
+_inspect.cjs
+_crop.cjs
+_measure.cjs
+
+# --- OS / editor --------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
