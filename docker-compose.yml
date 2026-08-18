@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    # Secrets stay out of the image and are injected at run time.
+    env_file:
+      - .ENV
+    volumes:
+      # The Google key lives on the host; the container is Linux and has no
+      # C:\ drive, so it gets mounted in read-only instead.
+      - C:/Users/L/.secrets:/secrets:ro
+    environment:
+      # Overrides the Windows path in .ENV with the mounted location.
+      GOOGLE_CREDENTIALS_PATH: /secrets/hr-jamjoom-sa.json
+    restart: unless-stopped

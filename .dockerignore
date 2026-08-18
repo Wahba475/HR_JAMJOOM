@@ -1,0 +1,25 @@
+# Keep the build context small — without this, venv/ and node_modules/
+# are uploaded to the daemon on every build.
+venv/
+.venv/
+node_modules/
+cv-filter-frontend/node_modules/
+cv-filter-frontend/dist/
+
+# Never bake secrets into an image layer
+.ENV
+.env
+*.json.key
+.secrets/
+
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+*.log
+llm_usage.jsonl
+stitch-export/
+stitch-export-v2/
+test_cvs*/
+cv-uploads/
+README.md
