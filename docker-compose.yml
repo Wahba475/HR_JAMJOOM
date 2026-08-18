@@ -1,16 +1,175 @@
+# =============================================================================
+# FIRST-TIME SETUP — run these commands in order, from this directory.
+# Copy/paste one block at a time and check the expected result before moving on.
+# =============================================================================
+#
+# STEP 1 — Create the two folders that nginx and certbot share.
+#   certbot-webroot : certbot drops a temporary proof-of-ownership file here,
+#                     and nginx serves it so Let's Encrypt can fetch it.
+#   letsencrypt     : the certificates themselves get written here and must
+#                     survive container restarts, so they live on the host.
+#
+#     mkdir -p certbot-webroot letsencrypt
+#
+# STEP 2 — Start with the PHASE 1 nginx config.
+#   Why: nginx refuses to start if a config references a certificate file that
+#   does not exist yet. Right now no certificate exists, so we must boot with a
+#   port-80-only config first. This copies phase 1 over the file nginx reads.
+#
+#     cp nginx-phase1.conf nginx.conf.active
+#     docker compose up -d --build
+#
+#   Check it worked (should print a placeholder line, not an error):
+#     curl http://wahba-cv-screener.duckdns.org
+#
+# STEP 3 — Ask Let's Encrypt for the certificate.
+#   "certonly"  = just fetch the certificate, do not try to edit any config.
+#   "--webroot" = prove we own the domain by placing a file on the live site
+#                 (as opposed to temporarily shutting nginx down).
+#   The path after -w must match the folder nginx serves the challenge from.
+#
+#     docker compose run --rm certbot certonly \
+#       --webroot -w /var/www/certbot \
+#       -d wahba-cv-screener.duckdns.org \
+#       --email abdulrahman.wahba2005@gmail.com \
+#       --agree-tos --no-eff-email
+#
+# STEP 4 — Confirm the certificate files actually exist before switching over.
+#   You should see fullchain.pem and privkey.pem listed.
+#
+#     sudo ls -l letsencrypt/live/wahba-cv-screener.duckdns.org/
+#
+#   If that folder does not exist, STOP. Do not continue to step 5 — nginx will
+#   fail to start. Re-read the certbot output from step 3 for the reason
+#   (usually DNS not pointing here yet, or port 80 blocked by a firewall).
+#
+# STEP 5 — Switch to the real config (HTTPS + proxy) and reload nginx.
+#
+#     cp nginx.conf nginx.conf.active
+#     docker compose restart nginx
+#
+#   Verify (should return 200):
+#     curl -s -o /dev/null -w "%{http_code}\n" https://wahba-cv-screener.duckdns.org/runs
+#
+# -----------------------------------------------------------------------------
+# RENEWING LATER — certificates expire after 90 days.
+# This command renews only if the cert is close to expiry, then reloads nginx.
+# Run it monthly, or put it in cron:
+#
+#     docker compose run --rm certbot renew && docker compose restart nginx
+#
+# =============================================================================
+
 services:
-  api:
+  # ---------------------------------------------------------------------------
+  # The FastAPI backend. This is your application.
+  # ---------------------------------------------------------------------------
+  cv-api:
+    # "build ." means: construct the image from the Dockerfile in this folder,
+    # rather than downloading a prebuilt one from Docker Hub.
     build: .
-    ports:
-      - "8000:8000"
-    # Secrets stay out of the image and are injected at run time.
+
+    # A fixed, predictable name. Without this Docker invents a random name and
+    # you cannot reliably write `docker logs cv-api`.
+    container_name: cv-api
+
+    # If the container crashes, or the whole server reboots, start it again.
+    # "unless-stopped" means it will NOT restart if you deliberately stopped it.
+    restart: unless-stopped
+
+    # Reads your secrets (database URL, API keys) from .ENV at start time and
+    # injects them as environment variables. They are never baked into the
+    # image, so the image is safe to rebuild and share.
+    #
+    # IMPORTANT: do not put quotes around values in .ENV. Docker treats
+    # everything after the "=" as literal text, so AWS_REGION="us-east-2"
+    # arrives with the quote characters attached and breaks the AWS client.
     env_file:
       - .ENV
-    volumes:
-      # The Google key lives on the host; the container is Linux and has no
-      # C:\ drive, so it gets mounted in read-only instead.
-      - C:/Users/L/.secrets:/secrets:ro
-    environment:
-      # Overrides the Windows path in .ENV with the mounted location.
-      GOOGLE_CREDENTIALS_PATH: /secrets/hr-jamjoom-sa.json
+
+    # NOTE: there is deliberately no "ports:" section here.
+    #
+    # Not publishing a port means this container is unreachable from the
+    # internet. Only other containers on the same Docker network can talk to
+    # it, and they reach it by service name: http://cv-api:8000
+    #
+    # That is exactly what we want — every request should arrive through nginx,
+    # which handles HTTPS. If we published 8000, anyone could bypass nginx and
+    # hit the API over plain unencrypted HTTP.
+
+    # OPTIONAL — only needed if you use the Google Sheets export feature.
+    # Mounts the folder holding the service-account key into the container.
+    # ":ro" = read-only, so the app can read the key but never modify it.
+    # If you enable this, set GOOGLE_CREDENTIALS_PATH=/secrets/hr-jamjoom-sa.json
+    # in your .ENV file.
+    # volumes:
+    #   - /opt/cv-screener/secrets:/secrets:ro
+
+  # ---------------------------------------------------------------------------
+  # nginx — the reverse proxy. It is the only thing exposed to the internet.
+  # It terminates HTTPS (handles the encryption) and forwards requests to cv-api.
+  # ---------------------------------------------------------------------------
+  nginx:
+    # "alpine" is a minimal Linux base — a much smaller download than the
+    # default image, with the same nginx inside.
+    image: nginx:alpine
+    container_name: cv-nginx
     restart: unless-stopped
+
+    # "host:container" — the left number is the port on your server, the right
+    # is the port inside the container.
+    #   80  = plain HTTP. Needed for the certbot challenge and to redirect
+    #         visitors to HTTPS.
+    #   443 = HTTPS, the encrypted port browsers use for https:// URLs.
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      # Feeds our config into nginx. Anything placed in /etc/nginx/conf.d/ is
+      # loaded automatically at start.
+      #
+      # We mount "nginx.conf.active" (a copy you make in steps 2 and 5) rather
+      # than nginx.conf directly, so you can swap between the phase 1 and final
+      # configs just by copying a file — no editing under pressure.
+      #
+      # ":ro" = read-only. nginx never needs to change its own config.
+      - ./nginx.conf.active:/etc/nginx/conf.d/default.conf:ro
+
+      # Shared with the certbot container. certbot WRITES the challenge file
+      # here; nginx READS it and serves it to Let's Encrypt. Both containers
+      # must see the same folder, which is why it lives on the host.
+      # No ":ro" — this one must be writable.
+      - ./certbot-webroot:/var/www/certbot
+
+      # The certificates. Read-only for nginx: it only ever needs to read the
+      # cert to encrypt traffic. Only certbot writes here.
+      - ./letsencrypt:/etc/letsencrypt:ro
+
+    # Start cv-api before nginx. Note this only waits for the container to
+    # start, not for the app inside to be fully ready — that is fine here,
+    # because nginx retries a failed upstream on the next request.
+    depends_on:
+      - cv-api
+
+  # ---------------------------------------------------------------------------
+  # certbot — the Let's Encrypt client. It obtains and renews the certificate.
+  #
+  # This container is NOT meant to run continuously. It is a one-shot tool you
+  # invoke by hand with "docker compose run --rm certbot ...".
+  # ---------------------------------------------------------------------------
+  certbot:
+    image: certbot/certbot
+    container_name: cv-certbot
+
+    volumes:
+      # Same two folders as nginx, but writable here — certbot is the one that
+      # creates the challenge file and writes the finished certificates.
+      - ./certbot-webroot:/var/www/certbot
+      - ./letsencrypt:/etc/letsencrypt
+
+    # "entrypoint: sh" stops this container from trying to do anything when you
+    # run "docker compose up". Without it, certbot would launch on every start,
+    # find nothing to do, exit, and clutter your logs with a dead container.
+    # You override this whenever you run it manually.
+    entrypoint: sh
