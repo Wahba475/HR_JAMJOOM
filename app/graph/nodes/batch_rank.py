@@ -10,7 +10,7 @@ GraphState.candidates already holds every score in memory.
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from app.config import OPENAI_API_KEY, RANK_MODEL
+from app.config import OPENAI_API_KEY, RANK_MODEL, RUN_SEED
 from app.db.queries import save_batch_rank
 from app.graph.prompts import BATCH_RANK_PROMPT
 from app.graph.state import CandidateState
@@ -29,9 +29,14 @@ class BatchRankResult(BaseModel):
 
 # Stronger model than score_cv: only a handful of calls per run, and this is
 # the step where comparative judgment actually decides the shortlist.
-llm = ChatOpenAI(model=RANK_MODEL, api_key=OPENAI_API_KEY).with_structured_output(
-    BatchRankResult, include_raw=True
-)
+#
+# temperature=0 and a fixed seed matter here specifically. Left at the
+# default this node sampled freely, so the same CVs against the same job
+# could produce a different shortlist on every run. The seed is
+# best-effort on OpenAI's side, not a hard guarantee.
+llm = ChatOpenAI(
+    model=RANK_MODEL, api_key=OPENAI_API_KEY, temperature=0, seed=RUN_SEED
+).with_structured_output(BatchRankResult, include_raw=True)
 
 
 def _format_group(group: list[CandidateState]) -> str:

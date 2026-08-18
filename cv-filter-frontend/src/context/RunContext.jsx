@@ -12,18 +12,55 @@ export const useRun = () => {
   return context
 }
 
+// A run lives entirely in memory otherwise, so a refresh wiped runId and
+// every request went to /runs/null. Only the id and a small snapshot are
+// persisted — the actual data is re-fetched from the API, so a reloaded
+// tab can never show stale scores.
+const STORAGE_KEY = 'cv-screener:run'
+
+const loadPersisted = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}
+  } catch {
+    return {}
+  }
+}
+
 export const RunProvider = ({ children }) => {
-  const [runId, setRunId] = useState(null)
-  const [status, setStatus] = useState(null)
-  const [totalCvs, setTotalCvs] = useState(0)
-  const [processedCvs, setProcessedCvs] = useState(0)
+  const persisted = loadPersisted()
+
+  const [runId, setRunId] = useState(persisted.runId ?? null)
+  const [status, setStatus] = useState(persisted.status ?? null)
+  const [totalCvs, setTotalCvs] = useState(persisted.totalCvs ?? 0)
+  const [processedCvs, setProcessedCvs] = useState(persisted.processedCvs ?? 0)
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   // Mirrors runId synchronously so calls made right after createRun (before
   // the next render) still target the right run instead of a stale closure.
-  const runIdRef = useRef(null)
+  // Seeded from storage so the very first request after a refresh is valid.
+  const runIdRef = useRef(persisted.runId ?? null)
+
+  const persist = useCallback((patch) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...loadPersisted(), ...patch }))
+    } catch {
+      // Private browsing or a full quota — the app still works for this
+      // session, it just won't survive a reload.
+    }
+  }, [])
+
+  const resetRun = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+    runIdRef.current = null
+    setRunId(null)
+    setStatus(null)
+    setTotalCvs(0)
+    setProcessedCvs(0)
+    setResults([])
+    setError(null)
+  }, [])
 
   const createRun = useCallback(async ({ title, jobDescription, criteria, targetCount }) => {
     try {
@@ -41,6 +78,7 @@ export const RunProvider = ({ children }) => {
       const id = response.data.run_id
       runIdRef.current = id
       setRunId(id)
+      persist({ runId: id, status: 'pending', totalCvs: 0, processedCvs: 0 })
       return id
     } catch (err) {
       console.error('Error creating run:', err)
@@ -51,7 +89,7 @@ export const RunProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [persist])
 
   const uploadCvs = useCallback(async (files) => {
     try {
@@ -106,6 +144,11 @@ export const RunProvider = ({ children }) => {
       setStatus(response.data.status)
       setTotalCvs(response.data.total_cvs)
       setProcessedCvs(response.data.processed_cvs)
+      persist({
+        status: response.data.status,
+        totalCvs: response.data.total_cvs,
+        processedCvs: response.data.processed_cvs,
+      })
       return response.data
     } catch (err) {
       console.error('Error polling run status:', err)
@@ -114,7 +157,7 @@ export const RunProvider = ({ children }) => {
       toast.error(errorMessage)
       throw err
     }
-  }, [])
+  }, [persist])
 
   const fetchResults = useCallback(async () => {
     try {
@@ -149,16 +192,38 @@ export const RunProvider = ({ children }) => {
     URL.revokeObjectURL(href)
   }
 
+  // Creates a real Google Sheet server-side and opens it. The window is
+  // opened synchronously before awaiting, because a popup triggered after
+  // an await has lost the user-gesture context and gets blocked.
   const exportToSheet = useCallback(async () => {
+    const tab = window.open('', '_blank')
+    const toastId = toast.loading('Building your Google Sheet…')
+    try {
+      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/sheet`
+      const response = await axios.post(url)
+      const sheetUrl = response.data.sheet_url
+      if (tab) tab.location = sheetUrl
+      else window.open(sheetUrl, '_blank', 'noopener,noreferrer')
+      toast.success('Google Sheet created', { id: toastId })
+      return sheetUrl
+    } catch (err) {
+      if (tab) tab.close()
+      console.error('Error exporting to sheet:', err)
+      const errorMessage =
+        err.response?.data?.detail || err.response?.data?.message || err.message || 'Failed to export'
+      toast.error(errorMessage, { id: toastId })
+    }
+  }, [])
+
+  const downloadCsv = useCallback(async () => {
     try {
       const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/export`
       const response = await axios.post(url, null, { responseType: 'blob' })
       saveBlob(response.data, `shortlist_${runIdRef.current.slice(0, 8)}.csv`)
-      toast.success('Shortlist downloaded — open it in Google Sheets')
+      toast.success('CSV downloaded')
     } catch (err) {
-      console.error('Error exporting to sheet:', err)
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to export'
-      toast.error(errorMessage)
+      console.error('Error downloading CSV:', err)
+      toast.error(err.response?.data?.message || err.message || 'Failed to download CSV')
     }
   }, [])
 
@@ -189,7 +254,9 @@ export const RunProvider = ({ children }) => {
     pollStatus,
     fetchResults,
     exportToSheet,
+    downloadCsv,
     downloadAllCvs,
+    resetRun,
   }
 
   return <RunContext.Provider value={value}>{children}</RunContext.Provider>

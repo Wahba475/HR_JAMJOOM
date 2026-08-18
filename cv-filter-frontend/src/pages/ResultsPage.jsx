@@ -1,18 +1,38 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useRun } from '../context/RunContext'
 import CandidateCard from '../components/CandidateCard'
 import AmbientGlow from '../components/AmbientGlow'
 
 const ResultsPage = () => {
-  const { results, fetchResults, exportToSheet, downloadAllCvs } = useRun()
+  const { runId, results, fetchResults, exportToSheet, downloadCsv, downloadAllCvs, resetRun } = useRun()
+  const navigate = useNavigate()
 
   useEffect(() => {
+    if (!runId) {
+      navigate('/', { replace: true })
+      return
+    }
     fetchResults()
-  }, [fetchResults])
+  }, [runId, fetchResults, navigate])
+
+  const startNewScreening = () => {
+    resetRun()
+    navigate('/')
+  }
 
   return (
     <div className="bg-canvas text-ink min-h-screen flex flex-col antialiased">
-      <header className="bg-background border-b border-hairline flex items-center px-lg w-full sticky top-0 z-50 h-14">
+      <header className="bg-background border-b border-hairline flex items-center gap-md px-lg w-full sticky top-0 z-50 h-14">
+        <button
+          onClick={startNewScreening}
+          className="flex items-center gap-xs text-ink-subtle hover:text-ink hover:bg-surface-2 focus-ring rounded-md px-2 py-1 -ml-2 transition-colors"
+          aria-label="Start a new screening"
+        >
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span className="text-[14px]">New screening</span>
+        </button>
+        <div className="h-5 w-px bg-hairline" />
         <span className="text-[20px] tracking-[-0.5px] font-semibold text-ink">CV Screener</span>
       </header>
 
@@ -29,6 +49,14 @@ const ResultsPage = () => {
             </p>
           </div>
           <div className="flex items-center gap-sm">
+            <button
+              onClick={downloadCsv}
+              disabled={results.length === 0}
+              className="flex items-center gap-xs px-md py-1.5 rounded-md border border-hairline bg-surface-1 text-ink text-[14px] hover:bg-surface-2 hover:border-hairline-strong active:bg-surface-3 focus-ring transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span className="material-symbols-outlined text-[16px]">description</span>
+              CSV
+            </button>
             <button
               onClick={downloadAllCvs}
               disabled={results.length === 0}

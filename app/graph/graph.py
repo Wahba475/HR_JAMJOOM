@@ -52,16 +52,34 @@ def fan_out_score(state: GraphState):
     ]
 
 
+GROUP_SIZE = 12
+MAX_SURVIVORS = 120
+
+
 def fan_out_batches(state: GraphState):
     """Take everyone score_cv finished, group them, send one call per group."""
     # Unscored candidates are skipped rather than sorted: a failed score_cv
     # leaves score=None, and None has no ordering against a float.
     scored = [c for c in state["candidates"] if c.get("score") is not None]
-    survivors = sorted(scored, key=lambda c: c["score"], reverse=True)
-    survivors = survivors[: state["target_count"] * 3]
 
-    group_size = 12
-    groups = [survivors[i : i + group_size] for i in range(0, len(survivors), group_size)]
+    # candidate_id is the secondary key so repeat runs order identically.
+    # On score alone the order is whatever order the parallel branches
+    # happened to finish in, which changes every run.
+    ranked = sorted(scored, key=lambda c: (-c["score"], c["candidate_id"]))
+
+    cutoff = state["target_count"] * 3
+    survivors = ranked[:cutoff]
+
+    # Extend through anyone tied with the last survivor. Slicing mid-tie
+    # drops candidates on list position rather than merit — with 56 CVs
+    # sharing one score, a hard cut excluded most of them from the only
+    # step that can actually tell them apart.
+    if len(ranked) > cutoff:
+        boundary = ranked[cutoff - 1]["score"]
+        survivors += [c for c in ranked[cutoff:] if c["score"] == boundary]
+        survivors = survivors[:MAX_SURVIVORS]
+
+    groups = [survivors[i : i + GROUP_SIZE] for i in range(0, len(survivors), GROUP_SIZE)]
 
     return [
         Send(

@@ -25,6 +25,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("GPT_API_KEY")
 SCORE_MODEL = os.getenv("SCORE_MODEL", "gpt-4.1-mini")
 RANK_MODEL = os.getenv("RANK_MODEL", "gpt-5.4-mini")
 LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "4"))
+# Sent with every LLM call so repeat runs over the same CVs stay comparable.
+# OpenAI treats seed as best-effort, so this narrows variance rather than
+# eliminating it.
+RUN_SEED = int(os.getenv("RUN_SEED", "42"))
 
 # Local Ollama fallback, kept so the pipeline can run without a paid key.
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -34,9 +38,10 @@ LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")
 # Path to the service-account JSON. Kept outside the project tree so the
 # private key can't be swept into a commit.
 GOOGLE_CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH")
-# Who the created sheet gets shared with; without this the sheet is owned
-# by the service account and invisible to any human.
-SHEET_SHARE_WITH = [e.strip() for e in os.getenv("SHEET_SHARE_WITH", "").split(",") if e.strip()]
+# The spreadsheet to write into. It must be created by a human and shared
+# with the service account as Editor — service accounts have no Drive
+# storage quota, so they cannot create or own a spreadsheet themselves.
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 
 # --- Throughput -------------------------------------------------------
 GRAPH_CONCURRENCY = int(os.getenv("GRAPH_CONCURRENCY", "20"))

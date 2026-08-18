@@ -14,10 +14,11 @@ Two formats, both driven off the same query:
 
 import asyncio
 import csv
+from datetime import datetime
 import io
 import zipfile
 
-from app.config import GOOGLE_CREDENTIALS_PATH, SHEET_SHARE_WITH
+from app.config import GOOGLE_CREDENTIALS_PATH, GOOGLE_SHEET_ID
 from app.db.session import get_pool
 from app.services import storage
 
@@ -68,24 +69,41 @@ async def export_csv(run_id: str) -> bytes:
     return buffer.getvalue().encode("utf-8-sig")
 
 
-def _sheet_rows(run_id: str, title: str, rows: list[dict]) -> list[list]:
-    header = [f"Shortlist — {title}", "", "", "", "", ""]
-    body = [
-        [
-            rank,
-            r["candidate_name"] or "",
-            r["candidate_email"] or "",
-            round(r["score"], 1) if r["score"] is not None else "",
-            r["rationale"] or "",
-            r["file_name"],
-        ]
-        for rank, r in enumerate(rows, start=1)
-    ]
-    return [header, COLUMNS, *body]
+SHEET_HEADERS = ["Rank", "Candidate", "Email", "Score", "Why they matched", "CV"]
+
+# Presigned links live in a document people keep, so a one-hour expiry
+# would leave a sheet full of dead links by the afternoon. Seven days is
+# the maximum SigV4 allows.
+LINK_TTL_SECONDS = 7 * 24 * 3600
+
+
+def _sheet_rows(title: str, rows: list[dict]) -> list[list]:
+    body = []
+    for rank, r in enumerate(rows, start=1):
+        url = storage.get_view_url(r["storage_path"], expires_in=LINK_TTL_SECONDS)
+        # HYPERLINK keeps the cell clickable while showing a readable label,
+        # instead of dumping a 700-character signed URL into the cell.
+        link = f'=HYPERLINK("{url}", "Open CV")'
+        body.append(
+            [
+                rank,
+                r["candidate_name"] or "—",
+                r["candidate_email"] or "—",
+                round(r["score"], 1) if r["score"] is not None else "",
+                r["rationale"] or "",
+                link,
+            ]
+        )
+    return [SHEET_HEADERS, *body]
 
 
 def _push_sync(title: str, values: list[list]) -> str:
-    """Create a sheet, write the shortlist, share it, return its URL.
+    """Add a tab to the configured spreadsheet, write the shortlist, return its URL.
+
+    Writes into a spreadsheet the *user* owns rather than creating one.
+    A service account has no Drive storage quota, so anything it creates
+    itself fails with a 403 — the account can edit files shared with it,
+    but cannot own them.
 
     Runs entirely in a worker thread: the Google client libraries are
     synchronous and would otherwise block the event loop for the whole
@@ -96,63 +114,144 @@ def _push_sync(title: str, values: list[list]) -> str:
 
     creds = Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH, scopes=SCOPES)
     sheets = build("sheets", "v4", credentials=creds, cache_discovery=False)
-    drive = build("drive", "v3", credentials=creds, cache_discovery=False)
 
-    created = sheets.spreadsheets().create(body={"properties": {"title": title}}).execute()
-    spreadsheet_id = created["spreadsheetId"]
+    spreadsheet_id = GOOGLE_SHEET_ID
 
+    # One tab per run, so past shortlists stay intact.
+    tab_title = f"{title[:60]} {datetime.now():%d %b %H:%M}"
+    added = (
+        sheets.spreadsheets()
+        .batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={"requests": [{"addSheet": {"properties": {"title": tab_title}}}]},
+        )
+        .execute()
+    )
+    sheet_id = added["replies"][0]["addSheet"]["properties"]["sheetId"]
+
+    # USER_ENTERED, not RAW: RAW would store the HYPERLINK formula as literal
+    # text and the CV column would show formula source instead of links.
     sheets.spreadsheets().values().update(
         spreadsheetId=spreadsheet_id,
-        range="A1",
-        valueInputOption="RAW",
+        range=f"'{tab_title}'!A1",
+        valueInputOption="USER_ENTERED",
         body={"values": values},
     ).execute()
 
-    # Bold the two header rows and freeze them, so the sheet is readable
-    # as-is rather than needing manual formatting before it's shared on.
+    rows = len(values)
+    header_bg = {"red": 0.15, "green": 0.19, "blue": 0.28}
+    band_bg = {"red": 0.96, "green": 0.97, "blue": 0.99}
+
     sheets.spreadsheets().batchUpdate(
         spreadsheetId=spreadsheet_id,
         body={
             "requests": [
+                # Header row: dark fill, white bold text, centred.
                 {
                     "repeatCell": {
-                        "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 2},
-                        "cell": {"userEnteredFormat": {"textFormat": {"bold": True}}},
-                        "fields": "userEnteredFormat.textFormat.bold",
+                        "range": {"sheetId": sheet_id, "startRowIndex": 0, "endRowIndex": 1},
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": header_bg,
+                                "textFormat": {
+                                    "bold": True,
+                                    "fontSize": 11,
+                                    "foregroundColor": {"red": 1, "green": 1, "blue": 1},
+                                },
+                                "verticalAlignment": "MIDDLE",
+                            }
+                        },
+                        "fields": "userEnteredFormat(backgroundColor,textFormat,verticalAlignment)",
                     }
                 },
                 {
                     "updateSheetProperties": {
-                        "properties": {"sheetId": 0, "gridProperties": {"frozenRowCount": 2}},
-                        "fields": "gridProperties.frozenRowCount",
+                        "properties": {
+                            "sheetId": sheet_id,
+                            "gridProperties": {"frozenRowCount": 1, "rowCount": max(rows, 2)},
+                        },
+                        "fields": "gridProperties(frozenRowCount,rowCount)",
                     }
                 },
-                {"autoResizeDimensions": {"dimensions": {"sheetId": 0, "dimension": "COLUMNS"}}},
+                # Wrap the rationale so long text stays inside its cell
+                # rather than spilling across the CV column.
+                {
+                    "repeatCell": {
+                        "range": {"sheetId": sheet_id, "startRowIndex": 1, "startColumnIndex": 4, "endColumnIndex": 5},
+                        "cell": {"userEnteredFormat": {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"}},
+                        "fields": "userEnteredFormat(wrapStrategy,verticalAlignment)",
+                    }
+                },
+                # Centre rank, score and the CV link.
+                *[
+                    {
+                        "repeatCell": {
+                            "range": {"sheetId": sheet_id, "startRowIndex": 1, "startColumnIndex": c, "endColumnIndex": c + 1},
+                            "cell": {"userEnteredFormat": {"horizontalAlignment": "CENTER"}},
+                            "fields": "userEnteredFormat.horizontalAlignment",
+                        }
+                    }
+                    for c in (0, 3, 5)
+                ],
+                # Zebra striping, so a long shortlist stays readable.
+                {
+                    "addBanding": {
+                        "bandedRange": {
+                            "range": {"sheetId": sheet_id, "startRowIndex": 1, "endRowIndex": rows},
+                            "rowProperties": {
+                                "firstBandColor": {"red": 1, "green": 1, "blue": 1},
+                                "secondBandColor": band_bg,
+                            },
+                        }
+                    }
+                },
+                # Green-to-red scale on Score, so the spread is visible at a glance.
+                {
+                    "addConditionalFormatRule": {
+                        "index": 0,
+                        "rule": {
+                            "ranges": [{"sheetId": sheet_id, "startRowIndex": 1, "startColumnIndex": 3, "endColumnIndex": 4}],
+                            "gradientRule": {
+                                "minpoint": {"color": {"red": 0.96, "green": 0.80, "blue": 0.80}, "type": "MIN"},
+                                "maxpoint": {"color": {"red": 0.72, "green": 0.88, "blue": 0.75}, "type": "MAX"},
+                            },
+                        },
+                    }
+                },
+                # Fixed widths beat autoResize here: the rationale column is
+                # long free text and autoResize would make it enormous.
+                *[
+                    {
+                        "updateDimensionProperties": {
+                            "range": {"sheetId": sheet_id, "dimension": "COLUMNS", "startIndex": i, "endIndex": i + 1},
+                            "properties": {"pixelSize": w},
+                            "fields": "pixelSize",
+                        }
+                    }
+                    for i, w in enumerate([60, 200, 260, 70, 520, 90])
+                ],
             ]
         },
     ).execute()
 
-    # Without this the sheet belongs to the service account, which has no
-    # UI — nobody could actually open it.
-    for email in SHEET_SHARE_WITH:
-        drive.permissions().create(
-            fileId=spreadsheet_id,
-            body={"type": "user", "role": "writer", "emailAddress": email},
-            sendNotificationEmail=False,
-        ).execute()
 
-    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/edit"
+    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/edit#gid={sheet_id}"
 
 
 async def push_to_google_sheet(run_id: str) -> str:
     """Write the shortlist into a new Google Sheet and return its URL."""
     if not GOOGLE_CREDENTIALS_PATH:
         raise RuntimeError("GOOGLE_CREDENTIALS_PATH is not configured")
+    if not GOOGLE_SHEET_ID:
+        raise RuntimeError(
+            "GOOGLE_SHEET_ID is not configured. Create a Google Sheet, share it "
+            "as Editor with the service account, and set its id."
+        )
 
     pool = await get_pool()
     title = await pool.fetchval("SELECT title FROM runs WHERE id = $1", run_id) or "CV Screener"
     rows = await _fetch_shortlist(run_id)
-    values = _sheet_rows(run_id, title, rows)
+    values = _sheet_rows(title, rows)
     return await asyncio.to_thread(_push_sync, f"Shortlist — {title}", values)
 
 

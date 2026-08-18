@@ -10,7 +10,7 @@ time instead of jumping from 0 to 100% at the end.
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from app.config import OPENAI_API_KEY, SCORE_MODEL
+from app.config import OPENAI_API_KEY, RUN_SEED, SCORE_MODEL
 from app.db.queries import save_candidate_score
 from app.graph.prompts import SCORE_PROMPT
 from app.graph.state import CandidateState
@@ -28,7 +28,7 @@ class ScoreResult(BaseModel):
 # structured-output wrapper discards the response metadata that carries token
 # counts, and the run can't be costed.
 llm = ChatOpenAI(
-    model=SCORE_MODEL, api_key=OPENAI_API_KEY, temperature=0
+    model=SCORE_MODEL, api_key=OPENAI_API_KEY, temperature=0, seed=RUN_SEED
 ).with_structured_output(ScoreResult, include_raw=True)
 
 

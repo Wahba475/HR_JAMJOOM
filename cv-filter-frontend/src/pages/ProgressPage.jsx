@@ -7,16 +7,24 @@ import AmbientGlow from '../components/AmbientGlow'
 const POLL_INTERVAL_MS = 1500
 
 const ProgressPage = () => {
-  const { status, totalCvs, processedCvs, pollStatus } = useRun()
+  const { runId, status, totalCvs, processedCvs, pollStatus } = useRun()
   const navigate = useNavigate()
 
+  // Landing here without a run (a refresh before any run existed, or a
+  // direct URL) would otherwise poll /runs/null forever.
   useEffect(() => {
+    if (!runId) navigate('/', { replace: true })
+  }, [runId, navigate])
+
+  useEffect(() => {
+    if (!runId) return
+    pollStatus()
     const interval = setInterval(() => {
       pollStatus()
     }, POLL_INTERVAL_MS)
 
     return () => clearInterval(interval)
-  }, [pollStatus])
+  }, [runId, pollStatus])
 
   useEffect(() => {
     if (status === 'completed') {
