@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react'
-import axios from 'axios'
+import api from '../lib/api'
 import toast from 'react-hot-toast'
 
 const RunContext = createContext()
@@ -67,8 +67,8 @@ export const RunProvider = ({ children }) => {
       setLoading(true)
       setError(null)
 
-      const url = `${import.meta.env.VITE_API_URL}/runs`
-      const response = await axios.post(url, {
+      const url = `/runs`
+      const response = await api.post(url, {
         title,
         job_description: jobDescription,
         criteria,
@@ -101,8 +101,8 @@ export const RunProvider = ({ children }) => {
         formData.append('files', file)
       }
 
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/cvs`
-      const response = await axios.post(url, formData, {
+      const url = `/runs/${runIdRef.current}/cvs`
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
@@ -123,8 +123,8 @@ export const RunProvider = ({ children }) => {
       setLoading(true)
       setError(null)
 
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/start`
-      await axios.post(url)
+      const url = `/runs/${runIdRef.current}/start`
+      await api.post(url)
     } catch (err) {
       console.error('Error starting run:', err)
       const errorMessage = err.response?.data?.message || err.message || 'Failed to start run'
@@ -138,8 +138,8 @@ export const RunProvider = ({ children }) => {
 
   const pollStatus = useCallback(async () => {
     try {
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}`
-      const response = await axios.get(url)
+      const url = `/runs/${runIdRef.current}`
+      const response = await api.get(url)
 
       setStatus(response.data.status)
       setTotalCvs(response.data.total_cvs)
@@ -164,8 +164,8 @@ export const RunProvider = ({ children }) => {
       setLoading(true)
       setError(null)
 
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/results`
-      const response = await axios.get(url)
+      const url = `/runs/${runIdRef.current}/results`
+      const response = await api.get(url)
 
       setResults(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
@@ -199,8 +199,8 @@ export const RunProvider = ({ children }) => {
     const tab = window.open('', '_blank')
     const toastId = toast.loading('Building your Google Sheet…')
     try {
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/sheet`
-      const response = await axios.post(url)
+      const url = `/runs/${runIdRef.current}/sheet`
+      const response = await api.post(url)
       const sheetUrl = response.data.sheet_url
       if (tab) tab.location = sheetUrl
       else window.open(sheetUrl, '_blank', 'noopener,noreferrer')
@@ -217,8 +217,8 @@ export const RunProvider = ({ children }) => {
 
   const downloadCsv = useCallback(async () => {
     try {
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/export`
-      const response = await axios.post(url, null, { responseType: 'blob' })
+      const url = `/runs/${runIdRef.current}/export`
+      const response = await api.post(url, null, { responseType: 'blob' })
       saveBlob(response.data, `shortlist_${runIdRef.current.slice(0, 8)}.csv`)
       toast.success('CSV downloaded')
     } catch (err) {
@@ -229,8 +229,8 @@ export const RunProvider = ({ children }) => {
 
   const downloadAllCvs = useCallback(async () => {
     try {
-      const url = `${import.meta.env.VITE_API_URL}/runs/${runIdRef.current}/cvs/download`
-      const response = await axios.get(url, { responseType: 'blob' })
+      const url = `/runs/${runIdRef.current}/cvs/download`
+      const response = await api.get(url, { responseType: 'blob' })
       saveBlob(response.data, `cvs_${runIdRef.current.slice(0, 8)}.zip`)
       toast.success('CVs downloaded')
     } catch (err) {
